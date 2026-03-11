@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -35,10 +36,22 @@ func TestGenerateJWT(*testing.T) {
 }
 
 func TestParseJWT(t *testing.T) {
-	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjE3NzI2OTIwNjQsIm5iZiI6MTc3MjYwNTY2NCwiaWF0IjoxNzcyNjA1NjY0fQ.RQkpRkTbbp5nQ_CKHktZcAYtmQExcHZnLXoiRQLtbis"
+	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjE3NzMzMDUyNjUsIm5iZiI6MTc3MzIxODg2NSwiaWF0IjoxNzczMjE4ODY1fQ.Zx3JJrSyz34ryxr8OrB3wDIIk4erVR3_rCYYoup18QI"
 
 	type MyCustomClaims struct {
 		Foo string `json:"foo"`
 		jwt.RegisteredClaims
 	}
-}M
+
+	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (any, error) {
+		return []byte("AllYourBase"), nil
+	})
+
+	if err != nil {
+		panic(err.Error())
+	} else if claims, ok := token.Claims.(*MyCustomClaims); ok {
+		fmt.Println(claims.Foo, claims.Issuer)
+	} else {
+		log.Fatal("unknown claims type, cannot proceed")
+	}
+}
